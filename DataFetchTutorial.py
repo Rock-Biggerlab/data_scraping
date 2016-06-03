@@ -28,8 +28,9 @@ __author__ = 'LilyDu'
 """ How to get the same data using urllib2 """
 #First import all libraries that are needed
 import urllib2
-import json
-import time
+import json             #json makes sure that we could get the useful data from all info that we get
+import time             #time is necessary for using time delay which is closely associated with web
+import math             #math just provides more math functions
 
 #Set a variable for the target URL
 baseUrl = "https://api.weibo.com/2/place/pois/photos.json"
@@ -47,33 +48,54 @@ page = "1"
 #By using a format to add up and create the url, a change in each separate variable will result in a change in the url.
 url = baseUrl + "?" + "access_token=" + accessToken + "&poiid=" + poiid + "&count=" + count + "&page=" + page
 
-#By copying and pasting the resulting URL, you could get the same result as the above way of accessing web page.
-print url
 
 
 #"def" means function
-#Here, function fetch is set and 
-def fetch():
+def fetch(url):
+#    libraryName.functionName() can use a function that is specific to that library
+#    in this case, urlopen takes in the url as input and it gives you whatever data that comes back as an output
     response = urllib2.urlopen(url)
+#    read function basically converts everything it takes in into plain text that is readable
     data = response.read()
+#    after using json, you should get a well structured data set
     parsedData = json.loads(data)
-    
-    time.sleep(24)
+#    time delay just pause the whole process for 2 seconds(in this case)and then continues to run the project
+    time.sleep(2)
     
     return parsedData
-print data
 
 
 
+#If you look through our example, you should find a key called "total_number" at the bottom of each piece and so by searching the key, we get the specific content that is in the key
+numPosts = fetch(url)["total_number"]
 
-numPosts = parsedData["total_number"]
+#float just converts integers into floats so that the result can also be floats and not rounded value
+#math.ceiling just make sure that the result of the division is round up so that we do not miss any page
+numPages = int(math.ceil(float(numPosts) / float(count)))
 
-print numPosts
+for i in range(numPages):
+#    By declaring the variable again you change the value of the variable
+    page = str(i + 1)
 
-posts = parsedData["statuses"]
+#    This is the same way with another key
+    posts = fetch(url)["statuses"]
 
-print len(posts)
+#    len function is used to count the number of objects in the array posts
+    print len(posts)
 
-for post in posts:
-    uid = post["user"]["id"]
-    print uid
+#    for is used to loop through all collection of posts
+
+    for post in posts:
+#        This means that you first dig into posts to find "user" and then dig into "user" to find "id"
+#        Since this is in the for loop, it will print each uid in each posts
+#        By using try function: try the thing in the function, if it works well, then that's great, if there is an error, then skip it.
+        try:
+            uid = post["user"]["id"]
+        except:
+            print "user id error!"
+            uid = " "
+        
+        print uid
+
+#By copying and pasting the resulting URL, you could get the same result as the above way of accessing web page.
+print url
